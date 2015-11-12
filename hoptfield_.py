@@ -10,7 +10,6 @@ Etat poubelle. C'est parce que la partie croisé est plus importante que la part
 """
 import numpy as np
 
-# Recall a pattern (synchronous)
 def recall(W, patterns, steps=5):
     sgn = np.vectorize(lambda x: -1 if x < 0 else +1)
     for _ in range(steps):
@@ -18,22 +17,18 @@ def recall(W, patterns, steps=5):
     return patterns
 
 
-# Recall a pattern (asynchronous)
+# asynchronous
 def recallA(W, patterns, steps=5):
     n = W.shape[0]
     k = patterns.shape[0]
     sgn = np.vectorize(lambda x: -1 if x < 0 else +1)
 
-    # Random sequence of neurons (the same neuron can be activated more than
-    # one time.
-    # random_seq = np.random.randint(0, n, (n,))
-
+    #RAND neurones
     random_seq = np.random.permutation(range(n))
 
     v = np.zeros((k, n))
     for _ in range(steps):
         for j in range(k):
-            # for i in range(n):
             for i in random_seq:
                 v[j, i] = sgn(np.dot(W[i], patterns[j]))
     return v
