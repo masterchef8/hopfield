@@ -1,15 +1,13 @@
 __author__ = 'Somebody'
+import numpy as np
 
 
-# def build_datas(binary=True):
-#     if binary: _min = 0
-#     else: _min = -1
-#     return [ [1,_min,1,1,_min,1],
-#              [1,1,1,_min,_min,_min],
-#              [_min,1,_min,_min,1,1],
-#              [_min,1,1,1,1,_min],
-#            ]
-
+bipolaire = [[-1, 1, 1, 1, -1, 1, -1, -1, -1, 1, 1],
+        [-1, -1, -1, -1, 1, -1, -1, -1, -1, 1, 1],
+        [1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1],
+        [1, 1, 1, 1, -1, -1, -1, -1, 1, -1, 1],
+        [1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1],
+        [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1]]
 def myfun(x,binary=True):
     """
     fonction de seuillage
@@ -137,7 +135,7 @@ def hebbian(p, sz, binary=False):
     return _
 
 
-def learn(m, pat, rate=1., withDiag=False, binary=False, verbose=True):
+def learn(m, pat, rate=1., withDiag=False, binary=False, verbose=False):
     """
         m est la matrice courante, pat est le pattern a apprendre
         rate: facteur
@@ -145,7 +143,7 @@ def learn(m, pat, rate=1., withDiag=False, binary=False, verbose=True):
     """
     assert -1 <= rate <= 1, "%s in [-1 .. 1]" % rate
     _sz = len(pat)
-    _p = np.array(pat, float).reshape(1, _sz)
+    _p = np.array(pat, float).reshape(1, _sz)# crée une matrice de float
     _mp = hebbian(_p, _sz, binary)
     if not withDiag:
         _mp = _mp / _sz  # pour rester dans des petites valeurs
@@ -192,7 +190,9 @@ if __name__ == "__main__":
     # On contruit la matrice de Hopfield
     # 1. Quelles sont les données à apprendre
     # 2. Quelle est la taille des données
-    datas = build_datas(BINARY)  # True / False
+    #datas = build_datas(BINARY)  # True / False
+    datas = bipolaire
+
     lng = len(datas[0])
 
 
@@ -211,6 +211,9 @@ if __name__ == "__main__":
     hopf -= hopf.diagonal() * np.eye(lng)
     print("=" * 5, "final", "=" * 5)
     print(hopf)
+#--------------------------------------------------
+
+
 
     # 5. On regarde si les patterns sont stables
     f = lambda x: myfun(x, BINARY)
@@ -229,6 +232,7 @@ if __name__ == "__main__":
     print("*" * 20)
 
     # 6. asynchrone (1 pas, maj des cells dans l'ordre)
+
     for _ in datas:
         sz = len(_)
         y = np.array(_, float)

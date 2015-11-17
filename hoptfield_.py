@@ -10,49 +10,47 @@ Etat poubelle. C'est parce que la partie croisé est plus importante que la part
 """
 import numpy as np
 
-def recall(W, patterns, steps=5):
-    sgn = np.vectorize(lambda x: -1 if x < 0 else +1)
-    for _ in range(steps):
-        patterns = sgn(np.dot(patterns, W))
-    return patterns
-
-
-# asynchronous
-def recallA(W, patterns, steps=5):
-    n = W.shape[0]
-    k = patterns.shape[0]
-    sgn = np.vectorize(lambda x: -1 if x < 0 else +1)
-
-    #RAND neurones
-    random_seq = np.random.permutation(range(n))
-
-    v = np.zeros((k, n))
-    for _ in range(steps):
-        for j in range(k):
-            for i in random_seq:
-                v[j, i] = sgn(np.dot(W[i], patterns[j]))
-    return v
-
 
 class Hopfield(object):
 
-    def __init__(self, pattern, BINARY= False):
-        self.pattern = pattern #etat d'entrée
+    def __init__(self, pattern, rate=1):
+        self.pattern = pattern
         self.nb_neurones = len(self.pattern[0])
         self.nb_motifs = len(self.pattern)
 
-        self.m = np.zeros((self.nb_neurones, self.nb_neurones)) #matrice des poids
-        self.ratio = self.nb_motifs / self.nb_neurones
+        self.m = np.zeros((self.nb_neurones, self.nb_neurones)) # création matrice des poids
+        self.matrix(rate)
+        self.f = lambda x: self.active(x)
 
-        self.nb_iterations = 0
-        self.BINARY = BINARY
-        self.f = lambda x: self.myfun(x, BINARY)
-
-    def matrix(self):
+    def matrix(self,rate=1):
         for i in self.pattern:
-            z = np.array(i).reshape(1, self.nb_neurones)
+            z = np.array(i, float).reshape(1, self.nb_neurones)
+            print(self.m)
             self.m += z * z.T
         self.m /= self.nb_neurones #divise et réaffecte le résultat dans m
+        # self.m -= self.m.diagonal() * np.eye(self.nb_neurones)
+        print(self.m)
+
+    """
+    * Permet de faire apprendre ou désaprendre à motif seul
+    """
+    def learn(self,pat,rate=1.):
+        """
+            m est la matrice courante, pat est le pattern a apprendre
+            rate: facteur
+            rate < 0 : oubli
+        """
+        assert -1 <= rate <= 1, "%s in [-1 .. 1]" % rate
+        _sz = len(pat)
+        _p = np.array(pat, float).reshape(1, _sz)# crée une matrice de float
+        _mp = p * p.T
+
+        _mp = _mp / _sz  # pour rester dans des petites valeurs
+        _mp -= _mp.diagonal() * np.eye(_sz)
+        _mp *= rate
+
+        self.m += _mp
+
 
     def map_fun(self,f, matrice):
         """ applique f sur les éléments de la matrice """
@@ -68,47 +66,38 @@ class Hopfield(object):
         """
         x = self.map_fun(self.f, np.dot(y, m[..., i]))
         return x
-    def myfun(self,x,binary=False):
+    def active(self,x):
         """
         fonction de seuillage
         si > theta : 1
         si < theta : min
         sinon theta
         """
-        if binary :
-            _min,_theta = 0,.5
-        else:
-            _min,_theta = -1,0
-        if x > _theta : return 1
-        if x == _theta : return _theta
-        return _min
+        if x > 0: return 1
+        if x == 0: return 0
+        return -1
 
-    def evoluer(self, datas):
-    # 6. asynchrone (1 pas, maj des cells dans l'ordre)
-        for i in datas:
-            size = len(i)
-            y = np.array(_, float)
-            print("data", y)
-            for j in range(size):
-                o = self.asyn(self.m, y, j)
-                y[j] = o
+    def evoluer(self):
+        for i in self.pattern:
+            pattern = np.array(i, float)
+            print("data", pattern)
+            for j in range(self.nb_neurones):
+                o = self.asyn(self.m, pattern, j)
+                pattern[j] = o
                 print(i[j], '->', o)
-            print("final", y, end=' ')
-            if np.all(np.array(i, float) == y):
-                print("stable")
-            else:
-                print("non stable")
+            self.stable(i, pattern)
         print("fin asynchrone")
         print("=" * 20)
 
 
-    def stable(self, motif, etatA, etatB): #etatA = motif-1 / etatB=motif / motif = motif voulu
-        if (motif == etatB) or (etatA == etatB):
+    def stable(self,data,pat):
+        if np.all(np.array(data, float) == pat):
             print("Stable")
             return True
         else:
             print("Non Stable")
             return False
+
 
     def pas(self):
         """
@@ -127,29 +116,6 @@ class Hopfield(object):
                 print('stable')
             else:
                 print('non stable')
-
-    def bruit(self):
-        pass
-
-
-if __name__ == "__main__":
-    pattern = [[0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
-        [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0]]
-
-
-    h = Hopfield(pattern)
-    h.matrix()
-    print(h.m)
-    #tester l'evolution a un pas sur le 1er pattern
-    h.pas()
-
-
-
-
-
-
-
-
 
 
 
