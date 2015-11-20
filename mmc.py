@@ -2,26 +2,22 @@ __author__ = 'Somebody'
 import numpy as np
 
 
-bipolaire = [[-1, 1, 1, 1, -1, 1, -1, -1, -1, 1, 1],
-        [-1, -1, -1, -1, 1, -1, -1, -1, -1, 1, 1],
-        [1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1],
-        [1, 1, 1, 1, -1, -1, -1, -1, 1, -1, 1],
-        [1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1],
-        [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1]]
-def myfun(x,binary=True):
+
+def myfun(x, binary=True):
     """
     fonction de seuillage
     si > theta : 1
     si < theta : min
     sinon theta
     """
-    if binary :
-        _min,_theta = 0,.5
+    if binary:
+        _min, _theta = 0, .5
     else:
-        _min,_theta = -1,0
-    if x > _theta : return 1
-    if x == _theta : return _theta
+        _min, _theta = -1, 0
+    if x > _theta: return 1
+    if x == _theta: return _theta
     return _min
+
 
 def map_fun(f, matrice):
     """ applique f sur les éléments de la matrice """
@@ -77,7 +73,7 @@ def test_data(m, y, atmost=5):
     _ok = False
     k = 0
     while k < atmost and not _ok:  # nb iteration et pas stable
-        #print("\nItération %d" % k)
+        # print("\nItération %d" % k)
         memory[k] = list(y.flat)
         print("energie %.3f" % getEnergie(m, y), end=' > ')
         out = map_fun(f, np.dot(y, m))
@@ -143,7 +139,7 @@ def learn(m, pat, rate=1., withDiag=False, binary=False, verbose=False):
     """
     assert -1 <= rate <= 1, "%s in [-1 .. 1]" % rate
     _sz = len(pat)
-    _p = np.array(pat, float).reshape(1, _sz)# crée une matrice de float
+    _p = np.array(pat, float).reshape(1, _sz)  # crée une matrice de float
     _mp = hebbian(_p, _sz, binary)
     if not withDiag:
         _mp = _mp / _sz  # pour rester dans des petites valeurs
@@ -185,71 +181,131 @@ def findFixPoint(m, sz, binary=True):
 
 
 if __name__ == "__main__":
-    # On positionne le flag binaire/bipolaire
-    BINARY = False
-    # On contruit la matrice de Hopfield
-    # 1. Quelles sont les données à apprendre
-    # 2. Quelle est la taille des données
-    #datas = build_datas(BINARY)  # True / False
-    datas = bipolaire
+    binaireBig = [[0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                  [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                  [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0],
+                  [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                  [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                  [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]]
 
-    lng = len(datas[0])
+zero = [0, 1, 1, 0,
+        1, 0, 0, 1,
+        1, 0, 0, 1,
+        0, 1, 1, 0]
 
+one = [1, 1, 1, 1,
+       0, 0, 0, 1,
+       0, 0, 0, 1,
+       0, 0, 0, 1]
 
-    # 3. initialisation de la matrice
-    hopf = np.zeros((lng, lng))
-    for _ in datas:
-        # On garde la diagonale
-        print("_" * 5, _, "_" * 5)
-        hopf = learn(hopf, _, 1., True, BINARY, True)
-        print("_" * 5, "global", "_" * 5)
-        print(hopf)
+two = [1, 1, 1, 1,
+       0, 0, 1, 0,
+       0, 1, 0, 0,
+       1, 1, 1, 1]
 
+three = [1, 1, 1, 1,
+         0, 0, 1, 0,
+         0, 0, 1, 0,
+         1, 1, 1, 1]
 
-    # 4. on divise par la taille et on nullifie la diag
-    hopf /= lng
-    hopf -= hopf.diagonal() * np.eye(lng)
-    print("=" * 5, "final", "=" * 5)
+four = [1, 0, 0, 0,
+        1, 0, 0, 0,
+        1, 1, 1, 1,
+        0, 0, 1, 0]
+
+five = [1, 1, 1, 1,
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        1, 1, 1, 1]
+
+six = [1, 1, 1, 1,
+       1, 0, 0, 0,
+       1, 1, 1, 1,
+       1, 1, 1, 1]
+
+seven = [1, 1, 1, 1,
+         0, 0, 0, 1,
+         0, 1, 1, 1,
+         0, 0, 0, 1]
+
+eight = [1, 1, 1, 1,
+         0, 1, 1, 0,
+         1, 0, 0, 1,
+         1, 1, 1, 1]
+
+nine = [1, 1, 1, 1,
+        1, 1, 1, 1,
+        0, 0, 0, 1,
+        1, 1, 1, 1]
+
+binaire = [zero, one, two]
+# On positionne le flag binaire/bipolaire
+BINARY = True
+# On contruit la matrice de Hopfield
+# 1. Quelles sont les données à apprendre
+# 2. Quelle est la taille des données
+# datas = build_datas(BINARY)  # True / False
+datas = binaireBig
+
+lng = len(datas[0])
+
+# 3. initialisation de la matrice
+hopf = np.zeros((lng, lng))
+for _ in datas:
+    # On garde la diagonale
+    print("_" * 5, _, "_" * 5)
+    hopf = learn(hopf, _, 1., True, BINARY, True)
+    print("_" * 5, "global", "_" * 5)
     print(hopf)
-#--------------------------------------------------
+
+# 4. on divise par la taille et on nullifie la diag
+hopf /= lng
+hopf -= hopf.diagonal() * np.eye(lng)
+print("=" * 5, "final", "=" * 5)
+print(hopf)
+# --------------------------------------------------
 
 
 
-    # 5. On regarde si les patterns sont stables
-    f = lambda x: myfun(x, BINARY)
-    # presentation à un pas
-    for _ in datas:
-        y = np.array(_, float)
-        out = test_data(hopf, y, 7)
-        if np.all(y == out):
-            diag = "stable"
+# 5. On regarde si les patterns sont stables
+f = lambda x: myfun(x, BINARY)
+# presentation à un pas
+for _ in datas:
+    y = np.array(_, float)
+    out = test_data(hopf, y, 7)
+    if np.all(y == out):
+        diag = "stable"
+    else:
+        diag = "non stable"
+    print("\ndebut", np.array(_), "->", out, diag)
+    print("> next data")
+
+print("fin controle")
+print("*" * 20)
+
+# 6. asynchrone (1 pas, maj des cells dans l'ordre)
+
+for _ in datas:
+    sz = len(_)
+    y = np.array(_, float)
+    print("data", y)
+    for i in range(sz):
+        o = asyn(hopf, y, i)
+        if not BINARY and o not in (-1, 1):
+            pass
+        elif BINARY and o not in (0, 1):
+            pass
         else:
-            diag = "non stable"
-        print("\ndebut", np.array(_), "->", out, diag)
-        print("> next data")
-
-    print("fin controle")
-    print("*" * 20)
-
-    # 6. asynchrone (1 pas, maj des cells dans l'ordre)
-
-    for _ in datas:
-        sz = len(_)
-        y = np.array(_, float)
-        print("data", y)
-        for i in range(sz):
-            o = asyn(hopf, y, i)
-            if not BINARY and o not in (-1, 1):
-                pass
-            elif BINARY and o not in (0, 1):
-                pass
-            else:
-                y[i] = o
-            print(_[i], '->', o)
-        print("final", y, end=' ')
-        if np.all(np.array(_, float) == y):
-            print("stable")
-        else:
-            print("non stable")
-    print("fin asynchrone")
-    print("=" * 20)
+            y[i] = o
+        print(_[i], '->', o)
+    print("final", y, end=' ')
+    if np.all(np.array(_, float) == y):
+        print("stable")
+    else:
+        print("non stable")
+print("fin asynchrone")
+print("=" * 20)
