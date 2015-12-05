@@ -2,7 +2,6 @@ __author__ = 'Somebody'
 import numpy as np
 
 
-
 def myfun(x, binary=True):
     """
     fonction de seuillage
@@ -63,6 +62,22 @@ def asyn(m, y, i):
     return _
 
 
+def matchTo(sortie, pat):
+    """
+    Renvoie le pourcentage de match d'un pattern entrée dans la matrice
+    d'activation.
+    :param sortie: le pattern de sortie
+    :param pat: Le pattern entrée dans la matrice
+    :return: pourcentage de reconnaissance. pat == 100, Stable. pat < 100, Non Stable
+    """
+    match = 0
+    for i in range(len(pat)):
+        if sortie[i] == pat[i]:
+            match += 1
+    match = (match / len(pat)) * 100
+    return match
+
+
 def test_data(m, y, atmost=5):
     """
     * m : matrice de Hopfield
@@ -94,7 +109,6 @@ def test_data(m, y, atmost=5):
             if _ok: print("\narret %d cycle %d" % (k, len(memory)))
         else:
             k += 1
-
     return out
 
 
@@ -241,15 +255,24 @@ nine = [1, 1, 1, 1,
         1, 1, 1, 1,
         0, 0, 0, 1,
         1, 1, 1, 1]
-
-binaire = [zero, one, two]
+bipolaireBig = [[-1, 1, 1, 1, -1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, 1, 1, -1],
+                [-1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1],
+                [1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1],
+                [1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1],
+                [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1],
+                [1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1]]
+binaire = [zero, one, two, three, four, five, six, seven, eight, nine]
 # On positionne le flag binaire/bipolaire
 BINARY = True
 # On contruit la matrice de Hopfield
 # 1. Quelles sont les données à apprendre
 # 2. Quelle est la taille des données
 # datas = build_datas(BINARY)  # True / False
-datas = binaireBig
+datas = bipolaireBig
 
 lng = len(datas[0])
 

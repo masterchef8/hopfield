@@ -6,7 +6,7 @@ __usage__ = "Hopfield asynhrone"
 
 import hoptfield_ as h
 import numpy as np
-
+import face as f
 zero = [0, 1, 1, 0,
         1, 0, 0, 1,
         1, 0, 0, 1,
@@ -134,18 +134,17 @@ if __name__ == '__main__':
 
     bipolaire = [zeroBis, un, deux, trois, quatre, cinq, six_, sept, huit, neuf]
 
-    hopBin = h.Hopfield(binaire)
-    hopBip = h.Hopfield(bipolaire)
+    hopBipV = h.Hopfield(bipolaireBig)
+    hop = h.Hopfield(bipolaire)
 
-    hopBinBig = h.Hopfield(binaireBig)
-    hopBipBig = h.Hopfield(bipolaireBig)
 
-    print("------------------BIN-------------------")
-    hopBin.evoluer()
+   #hopBipBig = h.Hopfield(bipolaire)
+
     print("------------------BIP-------------------")
-    hopBip.evoluer()
+    #hopBipV.evoluer()
 
-    print("------------------BINBIG-------------------")
-    hopBinBig.evoluer()
+    hop.evoluer()
+    hop.learn(np.array(bipolaire), -1)
+    hop.evoluer()
     print("------------------BIPBIG-------------------")
-    hopBinBig.evoluer()
+    #hopBipBig.evoluer()
